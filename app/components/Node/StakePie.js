@@ -15,7 +15,7 @@ type Pool = {
 }
 
 type Stake = {
-  dandling: number,
+  dangling: number,
   pools: [Pool],
   unassigned: number,
 };
@@ -28,6 +28,45 @@ type StakeState = {
 type State = {
   loaded: boolean,
   stakeState: StakeState,
+  dataIndex: number,
+};
+
+const computeTotalStake = (stake: Stake) => {
+  let totalStake: number = stake.dangling;
+  console.log(stake);
+  console.log(totalStake);
+
+  stake.pools.forEach(pool => {
+    totalStake += pool.stake;
+  });
+
+  console.log(totalStake);
+
+
+  return {
+    totalStake: totalStake,
+    totalValue: totalStake + stake.unassigned,
+  }
+};
+
+const computeToPieData = (stake: Stake) => {
+  let data = [
+    {title: "unassigned", value: stake.unassigned, color: "#22594e"},
+    {title: "dangling", value: stake.dangling, color: "#2f7d6d"},
+  ];
+
+  let color = 0;
+
+  stake.pools.forEach(pool => {
+    color += 1;
+    data.push({
+      title: pool.poolId,
+      value: pool.stake,
+      color: '#5' + color + "afcc"
+    });
+  });
+
+  return data;
 };
 
 export default class LeaderSchedules extends Component<Props, State> {
@@ -36,6 +75,7 @@ export default class LeaderSchedules extends Component<Props, State> {
   state: State = {
     loaded: false,
     stakeState: null,
+    dataIndex: null,
   };
 
   loadSchedules = () => {
@@ -67,6 +107,38 @@ export default class LeaderSchedules extends Component<Props, State> {
     }
   }
 
+  renderInfo() {
+    console.log(this.state);
+
+    if (this.state.dataIndex === null || this.state.dataIndex === undefined) {
+      const { totalStake, totalValue } = computeTotalStake(this.state.stakeState.stake);
+
+      return (
+        <div>
+          <p>Total Value: {totalValue}</p>
+          <p>Total Stake: {totalStake}</p>
+        </div>
+      );
+    } else {
+      const data = this.state.stakeState.stake.pools[this.state.dataIndex];
+
+      return (
+        <div>
+          <p>{data.poolId}: {data.stake}</p>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  onPieOver = (index: number) => {
+    this.setState ({ dataIndex: index });
+  };
+
+  onPieLeave = () => {
+    this.setState ({ dataIndex: null });
+  };
+
   render() {
     const { loaded, stakeState } = this.state;
 
@@ -79,12 +151,14 @@ export default class LeaderSchedules extends Component<Props, State> {
         </div>
       );
     } else {
-      console.log(stakeState);
+      const epoch = stakeState.epoch;
+
+      const data = computeToPieData(stakeState.stake);
 
       return (
         <div className="card bg-dark">
           <div className="card-header">
-            <span className="badge badge-light">{10929093389}</span>
+            <span className="badge badge-light">{epoch}</span>
             &nbsp;Stake State
             <span className="float-right">
               <button className="btn btn-primary" data-tip="Check for more logs" onClick={this.loadSchedules}>
@@ -96,7 +170,22 @@ export default class LeaderSchedules extends Component<Props, State> {
           <div className="card-body">
             <div className="row">
               <div className="col">
-                <MyCompo />
+                {this.renderInfo()}
+              </div>
+            </div>
+            <div className="row">
+              <div className="col">
+                <ReactSvgPieChart
+                  data={data}
+                  expandOnHover
+                  onSectorHover={(d, i, e) => {
+                    if (d) {
+                      this.onPieOver(i);
+                    } else {
+                      this.onPieLeave();
+                    }
+                  }}
+                />
               </div>
             </div>
           </div>
