@@ -1,9 +1,8 @@
 // @flow
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import ReactToolTip from 'react-tooltip';
+import ReactSvgPieChart from 'react-svg-piechart';
 import Loading from '../Loading';
-import ReactSvgPieChart from "react-svg-piechart"
 
 type Props = {
   nodeAddress: string
@@ -11,42 +10,36 @@ type Props = {
 
 type Pool = {
   poolId: string,
-  stake: number,
-}
+  stake: number
+};
 
 type Stake = {
   dangling: number,
   pools: [Pool],
-  unassigned: number,
+  unassigned: number
 };
 
 type StakeState = {
   epoch: number,
-  stake: Stake,
+  stake: Stake
 };
 
 type State = {
   loaded: boolean,
   stakeState: StakeState,
-  dataIndex: number,
+  dataIndex: number
 };
 
 const computeTotalStake = (stake: Stake) => {
   let totalStake: number = stake.dangling;
-  console.log(stake);
-  console.log(totalStake);
-
   stake.pools.forEach(pool => {
     totalStake += pool.stake;
   });
 
-  console.log(totalStake);
-
-
   return {
     totalStake: totalStake,
     totalValue: totalStake + stake.unassigned,
-  }
+  };
 };
 
 const computeToPieData = (stake: Stake) => {
@@ -55,14 +48,11 @@ const computeToPieData = (stake: Stake) => {
     {title: "dangling", value: stake.dangling, color: "#2f7d6d"},
   ];
 
-  let color = 0;
-
   stake.pools.forEach(pool => {
-    color += 1;
     data.push({
       title: pool.poolId,
       value: pool.stake,
-      color: '#5' + color + "afcc"
+      color: '#4169E1'
     });
   });
 
@@ -108,8 +98,6 @@ export default class LeaderSchedules extends Component<Props, State> {
   }
 
   renderInfo() {
-    console.log(this.state);
-
     if (this.state.dataIndex === null || this.state.dataIndex === undefined) {
       const { totalStake, totalValue } = computeTotalStake(this.state.stakeState.stake);
 
@@ -120,7 +108,16 @@ export default class LeaderSchedules extends Component<Props, State> {
         </div>
       );
     } else {
-      const data = this.state.stakeState.stake.pools[this.state.dataIndex];
+      const index = this.state.dataIndex;
+      const stake = this.state.stakeState.stake;
+      let data = { poolId: "unassigned", stake: stake.unassigned };
+      if (index === 0) {
+        // DO NOTHING
+      } else if (index === 1) {
+        data = { poolId: "dangling", stake: stake.dangling };
+      } else {
+        data = this.state.stakeState.stake.pools[index - 2];
+      }
 
       return (
         <div>
@@ -194,28 +191,3 @@ export default class LeaderSchedules extends Component<Props, State> {
     }
   }
 }
-
-
-const data = [
-  {title: "Data 1", value: 100, color: "#22594e"},
-  {title: "Data 2", value: 60, color: "#2f7d6d"},
-  {title: "Data 3", value: 30, color: "#3da18d"},
-  {title: "Data 4", value: 20, color: "#69c2b0"},
-  {title: "Data 5", value: 10, color: "#a1d9ce"},
-]
-
-const MyCompo = () => (
-  <ReactSvgPieChart
-    data={data}
-    // If you need expand on hover (or touch) effect
-    expandOnHover
-    // If you need custom behavior when sector is hovered (or touched)
-    onSectorHover={(d, i, e) => {
-      if (d) {
-        console.log("Mouse enter - Index:", i, "Data:", d, "Event:", e)
-      } else {
-        console.log("Mouse leave - Index:", i, "Event:", e)
-      }
-    }}
-  />
-)
