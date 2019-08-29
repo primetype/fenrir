@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import ReactToolTip from 'react-tooltip';
 import Loading from '../Loading';
-import styles from './BlockchainConfig.css';
 
 type Props = {
   nodeAddress: string
@@ -30,7 +29,7 @@ const renderData = (blockchain: Blockchain) => {
         <div className="row">
           <div className="col-sm-3">Block0</div>
           <div className="col-sm-9" >
-            <div className={styles.block0Hash} data-tip={blockchain.block0Hash}>
+            <div className="blockHash" data-tip={blockchain.block0Hash}>
               {blockchain.block0Hash}
               <ReactToolTip />
             </div>

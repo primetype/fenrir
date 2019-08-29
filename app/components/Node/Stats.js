@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import ReactToolTip from 'react-tooltip';
 import Loading from '../Loading';
-import styles from './BlockchainConfig.css';
 
 type Props = {
   nodeAddress: string
@@ -12,11 +11,19 @@ type Props = {
 type Stats = {
   uptime: number,
   numberTransactionReceived: number,
+  numberBlockReceived: number,
+  lastBlockHash: string,
+  lastBlockDate: String,
+  lastBlockChainLength: string,
+  lastBlockTime: Date,
+  lastBlockNumberOfTransactions: number,
+  lastBlockTotalOutput: number,
+  lastBlockFees: number
 };
 
 type State = {
   loaded: boolean,
-  stats?: Stats,
+  stats?: Stats
 };
 
 function secondsToString(seconds)
@@ -49,6 +56,19 @@ function secondsToString(seconds)
 
 
 const renderData = (stats: Stats) => {
+  const {
+    uptime,
+    numberTransactionReceived,
+    numberBlockReceived,
+    lastBlockHash,
+    lastBlockDate,
+    lastBlockChainLength,
+    lastBlockTime,
+    lastBlockNumberOfTransactions,
+    lastBlockTotalOutput,
+    lastBlockFees,
+  } = stats;
+
   return (
     <div className="card bg-dark">
       <div className="card-header">
@@ -58,14 +78,59 @@ const renderData = (stats: Stats) => {
         <div className="row">
           <label className="col-sm-4">Up since</label>
           <div className="col-sm-8">
-            {secondsToString(stats.uptime)}
+            {secondsToString(uptime)}
           </div>
         </div>
 
         <div className="row">
           <label className="col-sm-4">Received Txs</label>
           <div className="col-sm-8">
-            {stats.numberTransactionReceived}
+            {numberTransactionReceived}
+          </div>
+        </div>
+
+        <div className="row">
+          <label className="col-sm-4">Received Blocks</label>
+          <div className="col-sm-8">
+            {numberBlockReceived}
+          </div>
+        </div>
+
+        <div className="row">
+          <label className="col-sm-4">Last Block</label>
+          <div className="col-sm-8">
+            <div className="blockHash" data-tip={lastBlockHash}>
+              {lastBlockHash}
+              <ReactToolTip />
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-sm-1"></div>
+          <label className="col-sm-3">Date/Length</label>
+          <div className="col-sm-8">
+            {lastBlockDate} / {lastBlockChainLength}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-sm-2"></div>
+          <label className="col-sm-2">Txs</label>
+          <div className="col-sm-8">
+            {lastBlockNumberOfTransactions}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-sm-2"></div>
+          <label className="col-sm-2">Outputs</label>
+          <div className="col-sm-8">
+            {lastBlockTotalOutput}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-sm-2"></div>
+          <label className="col-sm-2">Fees</label>
+          <div className="col-sm-8">
+            {lastBlockFees}
           </div>
         </div>
 
@@ -108,9 +173,20 @@ export default class NodeStats extends Component<Props, State> {
         }
         const data = JSON.parse(Http.responseText);
 
+        console.log(data);
+
+
         const stats = {
           uptime: data.uptime,
           numberTransactionReceived: data.txRecvCnt,
+          numberBlockReceived: data.blockRecvCnt,
+          lastBlockHash: data.lastBlockHash,
+          lastBlockDate: data.lastBlockDate,
+          lastBlockChainLength: data.lastBlockHeight,
+          lastBlockTime: new Date(data.lastBlockTime),
+          lastBlockNumberOfTransactions: data.lastBlockTx,
+          lastBlockTotalOutput: data.lastBlockSum,
+          lastBlockFees: data.lastBlockFees
         };
 
         this.setState({ loaded: true, stats: stats });
