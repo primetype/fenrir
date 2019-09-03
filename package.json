@@ -1,8 +1,8 @@
 {
   "name": "fenrir",
   "productName": "Fenrir",
-  "version": "0.17.1",
-  "description": "Fenrir is a sibling of Jórmungandr, it will help users work with the big snake",
+  "version": "0.1.0",
+  "description": "Fenrir is a sibling of Jörmungandr, it will help users work with the big snake",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
