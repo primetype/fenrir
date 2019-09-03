@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import ReactToolTip from 'react-tooltip';
 import Loading from '../Loading';
 
@@ -13,7 +12,7 @@ type Stats = {
   numberTransactionReceived: number,
   numberBlockReceived: number,
   lastBlockHash: string,
-  lastBlockDate: String,
+  lastBlockDate: string,
   lastBlockChainLength: string,
   lastBlockTime: Date,
   lastBlockNumberOfTransactions: number,
@@ -23,11 +22,10 @@ type Stats = {
 
 type State = {
   loaded: boolean,
-  stats?: Stats
+  stats: Stats
 };
 
-function secondsToString(seconds)
-{
+function secondsToString(seconds) {
   const years = Math.floor(seconds / 31536000);
   const days = Math.floor((seconds % 31536000) / 86400);
   const hours = Math.floor(((seconds % 31536000) % 86400) / 3600);
@@ -36,24 +34,23 @@ function secondsToString(seconds)
 
   let result = '';
   if (years !== 0) {
-    result += years + " years ";
+    result += `${years} years `;
   }
   if (days !== 0) {
-    result += days + " days ";
+    result += `${days} days `;
   }
   if (hours !== 0) {
-    result += hours + " hours ";
+    result += `${hours} hours `;
   }
   if (minutes !== 0) {
-    result += minutes + " minutes ";
+    result += `${minutes} minutes `;
   }
   if (remainingSeconds !== 0) {
-    result += remainingSeconds + " seconds";
+    result += `${remainingSeconds} seconds`;
   }
 
   return result;
 }
-
 
 const renderData = (stats: Stats) => {
   const {
@@ -63,41 +60,33 @@ const renderData = (stats: Stats) => {
     lastBlockHash,
     lastBlockDate,
     lastBlockChainLength,
-    lastBlockTime,
+    // lastBlockTime,
     lastBlockNumberOfTransactions,
     lastBlockTotalOutput,
-    lastBlockFees,
+    lastBlockFees
   } = stats;
 
   return (
     <div className="card bg-dark">
-      <div className="card-header">
-        Node stats
-      </div>
+      <div className="card-header">Node stats</div>
       <div className="card-body">
         <div className="row">
-          <label className="col-sm-4">Up since</label>
-          <div className="col-sm-8">
-            {secondsToString(uptime)}
-          </div>
+          <div className="col-sm-4">Up since</div>
+          <div className="col-sm-8">{secondsToString(uptime)}</div>
         </div>
 
         <div className="row">
-          <label className="col-sm-4">Received Txs</label>
-          <div className="col-sm-8">
-            {numberTransactionReceived}
-          </div>
+          <div className="col-sm-4">Received Txs</div>
+          <div className="col-sm-8">{numberTransactionReceived}</div>
         </div>
 
         <div className="row">
-          <label className="col-sm-4">Received Blocks</label>
-          <div className="col-sm-8">
-            {numberBlockReceived}
-          </div>
+          <div className="col-sm-4">Received Blocks</div>
+          <div className="col-sm-8">{numberBlockReceived}</div>
         </div>
 
         <div className="row">
-          <label className="col-sm-4">Last Block</label>
+          <div className="col-sm-4">Last Block</div>
           <div className="col-sm-8">
             <div className="blockHash" data-tip={lastBlockHash}>
               {lastBlockHash}
@@ -107,33 +96,26 @@ const renderData = (stats: Stats) => {
         </div>
         <div className="row">
           <div className="col-sm-1"></div>
-          <label className="col-sm-3">Date/Length</label>
+          <div className="col-sm-3">Date/Length</div>
           <div className="col-sm-8">
             {lastBlockDate} / {lastBlockChainLength}
           </div>
         </div>
         <div className="row">
           <div className="col-sm-2"></div>
-          <label className="col-sm-2">Txs</label>
-          <div className="col-sm-8">
-            {lastBlockNumberOfTransactions}
-          </div>
+          <div className="col-sm-2">Txs</div>
+          <div className="col-sm-8">{lastBlockNumberOfTransactions}</div>
         </div>
         <div className="row">
           <div className="col-sm-2"></div>
-          <label className="col-sm-2">Outputs</label>
-          <div className="col-sm-8">
-            {lastBlockTotalOutput}
-          </div>
+          <div className="col-sm-2">Outputs</div>
+          <div className="col-sm-8">{lastBlockTotalOutput}</div>
         </div>
         <div className="row">
           <div className="col-sm-2"></div>
-          <label className="col-sm-2">Fees</label>
-          <div className="col-sm-8">
-            {lastBlockFees}
-          </div>
+          <div className="col-sm-2">Fees</div>
+          <div className="col-sm-8">{lastBlockFees}</div>
         </div>
-
       </div>
     </div>
   );
@@ -142,39 +124,35 @@ const renderData = (stats: Stats) => {
 export default class NodeStats extends Component<Props, State> {
   props: Props;
 
-  interval= null;
-
   state: State = {
     loaded: false,
     stats: {
       uptime: 0,
-      numberTransactionReceived: 0,
+      numberTransactionReceived: 0
     }
   };
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
   componentDidMount() {
-    if (this.state.loaded === true) {
+    const { loaded } = this.state;
+    const { nodeAddress } = this.props;
+
+    if (loaded === true) {
       return;
     }
 
     this.interval = setInterval(() => {
       const Http = new XMLHttpRequest();
-      const url = this.props.nodeAddress + '/api/v0/node/stats';
-      Http.open("GET", url);
+      const url = `${nodeAddress}/api/v0/node/stats`;
+      Http.open('GET', url);
       Http.send();
 
-      Http.onreadystatechange = (e) => {
+      Http.onreadystatechange = () => {
         if (Http.responseText.length === 0) {
           return;
         }
         const data = JSON.parse(Http.responseText);
 
         console.log(data);
-
 
         const stats = {
           uptime: data.uptime,
@@ -189,27 +167,28 @@ export default class NodeStats extends Component<Props, State> {
           lastBlockFees: data.lastBlockFees
         };
 
-        this.setState({ loaded: true, stats: stats });
-      }
-    },
-      1000);
-
+        this.setState({ loaded: true, stats });
+      };
+    }, 1000);
   }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  interval = null;
 
   render() {
     const { loaded, stats } = this.state;
 
     if (loaded === false) {
-
       return (
         <div>
           Loading node stats...
           <Loading />
         </div>
       );
-    } else {
-      return renderData(stats);
     }
+    return renderData(stats);
   }
 }
-

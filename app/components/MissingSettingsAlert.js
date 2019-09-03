@@ -1,8 +1,8 @@
 // @flow
 import React, { Component } from 'react';
+import ReactToolTip from 'react-tooltip';
 import { Link } from 'react-router-dom';
 import routes from '../constants/routes';
-import ReactToolTip from 'react-tooltip';
 
 type Props = {};
 
@@ -11,20 +11,26 @@ export default class MissingSettingsAlert extends Component<Props> {
 
   render() {
     return (
-      <div class="alert alert-danger" role="alert">
-        <h2 class="alert-heading">Missing settings!</h2>
-        <p>Missing the node's REST insetting. Without them Fenrir will not be able to connect
-        to Jörmungandr. Nothing will happen</p>
+      <div className="alert alert-danger" role="alert">
+        <h2 className="alert-heading">Missing settings!</h2>
+        <p>
+          Missing the node&apos;s REST insetting. Without them Fenrir will not
+          be able to connect to Jörmungandr. Nothing will happen
+        </p>
         <hr />
-        <div class="row">
-          <div class="col-6">
+        <div className="row">
+          <div className="col-6">
             Go to the HOME page and enter the necessary settings
           </div>
           <div className="col" />
-          <div class="col">
-            <Link to={routes.HOME} className="btn btn-danger" data-tip="Set the Node connection settings">
+          <div className="col">
+            <Link
+              to={routes.HOME}
+              className="btn btn-danger"
+              data-tip="Set the Node connection settings"
+            >
               Go to Home page
-             <ReactToolTip />
+              <ReactToolTip />
             </Link>
           </div>
         </div>

@@ -37,15 +37,15 @@ const computeTotalStake = (stake: Stake) => {
   });
 
   return {
-    totalStake: totalStake,
-    totalValue: totalStake + stake.unassigned,
+    totalStake,
+    totalValue: totalStake + stake.unassigned
   };
 };
 
 const computeToPieData = (stake: Stake) => {
-  let data = [
-    {title: "unassigned", value: stake.unassigned, color: "#22594e"},
-    {title: "dangling", value: stake.dangling, color: "#2f7d6d"},
+  const data = [
+    { title: 'unassigned', value: stake.unassigned, color: '#22594e' },
+    { title: 'dangling', value: stake.dangling, color: '#2f7d6d' }
   ];
 
   stake.pools.forEach(pool => {
@@ -65,41 +65,45 @@ export default class LeaderSchedules extends Component<Props, State> {
   state: State = {
     loaded: false,
     stakeState: null,
-    dataIndex: null,
+    dataIndex: null
   };
 
-  loadSchedules = () => {
-    const Http = new XMLHttpRequest();
-    const url = this.props.nodeAddress + '/api/v0/stake';
-    Http.open("GET", url);
-    Http.send();
-
-    Http.onreadystatechange = (e) => {
-      if (Http.responseText.length === 0) {
-        return;
-      }
-      let stakeState = JSON.parse(Http.responseText);
-
-      stakeState.stake.pools = stakeState.stake.pools.map((pool) => {
-        return {
-          poolId: pool[0],
-          stake: pool[1],
-        };
-      });
-
-      this.setState({ loaded: true, stakeState: stakeState });
-    }
-  }
-
   componentDidMount() {
-    if (this.state.loaded === false) {
+    const { loaded } = this.state;
+    if (loaded === false) {
       this.loadSchedules();
     }
   }
 
+  loadSchedules = () => {
+    const { nodeAddress } = this.props;
+
+    const Http = new XMLHttpRequest();
+    const url = `${nodeAddress}/api/v0/stake`;
+    Http.open('GET', url);
+    Http.send();
+
+    Http.onreadystatechange = () => {
+      if (Http.responseText.length === 0) {
+        return;
+      }
+      const stakeState = JSON.parse(Http.responseText);
+
+      stakeState.stake.pools = stakeState.stake.pools.map(pool => {
+        return {
+          poolId: pool[0],
+          stake: pool[1]
+        };
+      });
+
+      this.setState({ loaded: true, stakeState });
+    };
+  };
+
   renderInfo() {
-    if (this.state.dataIndex === null || this.state.dataIndex === undefined) {
-      const { totalStake, totalValue } = computeTotalStake(this.state.stakeState.stake);
+    const { dataIndex, stakeState } = this.state;
+    if (dataIndex === null || dataIndex === undefined) {
+      const { totalStake, totalValue } = computeTotalStake(stakeState.stake);
 
       return (
         <div>
@@ -107,87 +111,88 @@ export default class LeaderSchedules extends Component<Props, State> {
           <p>Total Stake: {totalStake}</p>
         </div>
       );
-    } else {
-      const index = this.state.dataIndex;
-      const stake = this.state.stakeState.stake;
-      let data = { poolId: "unassigned", stake: stake.unassigned };
-      if (index === 0) {
-        // DO NOTHING
-      } else if (index === 1) {
-        data = { poolId: "dangling", stake: stake.dangling };
-      } else {
-        data = this.state.stakeState.stake.pools[index - 2];
-      }
-
-      return (
-        <div>
-          <p>{data.poolId}: {data.stake}</p>
-        </div>
-      );
     }
-    return null;
+    const index = dataIndex;
+    const { stake } = stakeState;
+    let data = { poolId: 'unassigned', stake: stake.unassigned };
+    if (index === 0) {
+      // DO NOTHING
+    } else if (index === 1) {
+      data = { poolId: 'dangling', stake: stake.dangling };
+    } else {
+      data = stake.pools[index - 2];
+    }
+
+    return (
+      <div>
+        <p>
+          {data.poolId}: {data.stake}
+        </p>
+      </div>
+    );
   }
 
   onPieOver = (index: number) => {
-    this.setState ({ dataIndex: index });
+    this.setState({ dataIndex: index });
   };
 
   onPieLeave = () => {
-    this.setState ({ dataIndex: null });
+    this.setState({ dataIndex: null });
   };
 
   render() {
     const { loaded, stakeState } = this.state;
 
     if (loaded === false) {
-
       return (
         <div>
           Loading stake stake
           <Loading />
         </div>
       );
-    } else {
-      const epoch = stakeState.epoch;
+    }
 
-      const data = computeToPieData(stakeState.stake);
+    const { epoch, stake } = stakeState;
+    const data = computeToPieData(stake);
 
-      return (
-        <div className="card bg-dark">
-          <div className="card-header">
-            <span className="badge badge-light">{epoch}</span>
-            &nbsp;Stake State
-            <span className="float-right">
-              <button className="btn btn-primary" data-tip="Check for more logs" onClick={this.loadSchedules}>
-                <i className="fa fa-redo" />
-                <ReactToolTip />
-              </button>
-            </span>
+    return (
+      <div className="card bg-dark">
+        <div className="card-header">
+          <span className="badge badge-light">{epoch}</span>
+          &nbsp;Stake State
+          <span className="float-right">
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-tip="Check for more logs"
+              onClick={this.loadSchedules}
+            >
+              <i className="fa fa-redo" />
+              <ReactToolTip />
+            </button>
+          </span>
+        </div>
+        <div className="card-body">
+          <div className="row">
+            <div className="col">{this.renderInfo()}</div>
           </div>
-          <div className="card-body">
-            <div className="row">
-              <div className="col">
-                {this.renderInfo()}
-              </div>
-            </div>
-            <div className="row">
-              <div className="col">
-                <ReactSvgPieChart
-                  data={data}
-                  expandOnHover
-                  onSectorHover={(d, i, e) => {
-                    if (d) {
-                      this.onPieOver(i);
-                    } else {
-                      this.onPieLeave();
-                    }
-                  }}
-                />
-              </div>
+          <div className="row">
+            <div className="col">
+              <ReactSvgPieChart
+                data={data}
+                expandOnHover
+                onSectorHover={(d, i) => {
+                  if (d) {
+                    this.onPieOver(i);
+                  } else {
+                    this.onPieLeave();
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
   }
 }

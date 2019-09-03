@@ -166,7 +166,9 @@ export default class MenuBuilder {
         {
           label: 'Search Issues',
           click() {
-            shell.openExternal('https://github.com/input-output-hk/fenrir/issues');
+            shell.openExternal(
+              'https://github.com/input-output-hk/fenrir/issues'
+            );
           }
         }
       ]
@@ -243,13 +245,17 @@ export default class MenuBuilder {
           {
             label: 'Learn More',
             click() {
-              shell.openExternal('http://input-output-hk.github.io/jormungandr');
+              shell.openExternal(
+                'http://input-output-hk.github.io/jormungandr'
+              );
             }
           },
           {
             label: 'Documentation',
             click() {
-              shell.openExternal('http://input-output-hk.github.io/jormungandr');
+              shell.openExternal(
+                'http://input-output-hk.github.io/jormungandr'
+              );
             }
           },
           {
@@ -261,8 +267,10 @@ export default class MenuBuilder {
           {
             label: 'Search Issues',
             click() {
-              shell.openExternal('https://github.com/input-output-hk/fenrir/issues');
-           }
+              shell.openExternal(
+                'https://github.com/input-output-hk/fenrir/issues'
+              );
+            }
           }
         ]
       }

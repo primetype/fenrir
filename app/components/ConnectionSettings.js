@@ -5,15 +5,14 @@ import routes from '../constants/routes';
 type Props = {};
 
 type State = {
-  address: string,
+  address: string
 };
 
 export default class ConnectionSettings extends Component<Props, State> {
-
   props: Props;
 
   state: State = {
-    address: 'http://localhost:8080',
+    address: 'http://localhost:8080'
   };
 
   onAddressChange = async event => {
@@ -28,7 +27,7 @@ export default class ConnectionSettings extends Component<Props, State> {
       <form>
         <div className="form-group">
           <label for="connectionSettingsAddress">
-            Node's REST address and port number:
+            Node&lsquo;s REST address and port number:
           </label>
           <input
             className="form-control"
@@ -41,11 +40,18 @@ export default class ConnectionSettings extends Component<Props, State> {
             onChange={this.onAddressChange}
           />
           <small id="addressHelpInline" className="form-text text-muted">
-            Set the address of the REST public interface. See the node configuration value for <code>rest.listen</code>. For example <code>http://localhost:8080</code>.
+            Set the address of the REST public interface. See the node
+            configuration value for <code>rest.listen</code>. For example{' '}
+            <code>http://localhost:8080</code>.
           </small>
         </div>
 
-        <Link className="btn btn-primary" to={{ pathname: routes.NODE, state: this.state }}>Connect</Link>
+        <Link
+          className="btn btn-primary"
+          to={{ pathname: routes.NODE, state: this.state }}
+        >
+          Connect
+        </Link>
       </form>
     );
   }

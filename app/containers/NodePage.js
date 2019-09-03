@@ -8,14 +8,16 @@ export default class NodePage extends Component<Props> {
   props: Props;
 
   render() {
+    const { location } = this.props;
+
     let nodeAddress = '';
-    if (this.props.location.state === undefined) {
+    if (location.state === undefined) {
       // TODO change location
       console.error('no location settings, redirect to the main page');
     } else {
-      nodeAddress = this.props.location.state.address;
+      nodeAddress = location.state.address;
     }
 
-    return <Node nodeAddress={nodeAddress} />
+    return <Node nodeAddress={nodeAddress} />;
   }
 }

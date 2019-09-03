@@ -1,9 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './Node.css';
 import ChangeSettingsButton from './ChangeSettingsButton';
-import routes from '../constants/routes';
 import MissingSettingsAlert from './MissingSettingsAlert';
 import BlockchainConfig from './Node/BlockchainConfig';
 import NodeStats from './Node/Stats';
@@ -61,10 +58,8 @@ export default class Node extends Component<Props> {
     return (
       <div className="container">
         <div className="row">
-          <div className="col" >
-            <span className="display-3">
-              Jörmungandr
-            </span>
+          <div className="col">
+            <span className="display-3">Jörmungandr</span>
             <span className="float-left">
               <ChangeSettingsButton />
             </span>
